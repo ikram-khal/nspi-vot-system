@@ -166,14 +166,14 @@ export default function VoterPage() {
               <CardContent>
                 <div className="grid grid-cols-3 gap-2">
                   <Button
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="bg-success hover:bg-success/90 text-success-foreground"
                     onClick={() => castVote(q.id, 'for')}
                     disabled={votingId === q.id}
                   >
                     ✅ Қосыламан
                   </Button>
                   <Button
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    variant="destructive"
                     onClick={() => castVote(q.id, 'against')}
                     disabled={votingId === q.id}
                   >
