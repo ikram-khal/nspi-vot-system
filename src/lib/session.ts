@@ -1,7 +1,7 @@
-// Session management for PIN-based auth
 const SESSION_KEY = 'nspi_session_id';
 const MEMBER_KEY = 'nspi_member';
 const ADMIN_KEY = 'nspi_admin';
+const ADMIN_USER_KEY = 'nspi_admin_user';
 
 export function getSessionId(): string {
   let id = localStorage.getItem(SESSION_KEY);
@@ -25,18 +25,25 @@ export function clearMember() {
   localStorage.removeItem(MEMBER_KEY);
 }
 
-export function setAdmin(isAdmin: boolean) {
-  if (isAdmin) localStorage.setItem(ADMIN_KEY, 'true');
-  else localStorage.removeItem(ADMIN_KEY);
+export function setAdmin(isAdmin: boolean, username?: string) {
+  if (isAdmin) {
+    localStorage.setItem(ADMIN_KEY, 'true');
+    if (username) localStorage.setItem(ADMIN_USER_KEY, username);
+  } else {
+    localStorage.removeItem(ADMIN_KEY);
+    localStorage.removeItem(ADMIN_USER_KEY);
+  }
 }
 
 export function isAdmin(): boolean {
   return localStorage.getItem(ADMIN_KEY) === 'true';
 }
 
-export function clearAdmin() {
-  localStorage.removeItem(ADMIN_KEY);
+export function getAdminUsername(): string {
+  return localStorage.getItem(ADMIN_USER_KEY) || '';
 }
 
-// Hardcoded admin password
-export const ADMIN_PASSWORD = 'nspi2024admin';
+export function clearAdmin() {
+  localStorage.removeItem(ADMIN_KEY);
+  localStorage.removeItem(ADMIN_USER_KEY);
+}

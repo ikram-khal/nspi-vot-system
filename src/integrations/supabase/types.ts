@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_accounts: {
+        Row: {
+          created_at: string
+          id: string
+          password_hash: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          password_hash: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          password_hash?: string
+          username?: string
+        }
+        Relationships: []
+      }
       meeting_attendees: {
         Row: {
           id: string
@@ -174,6 +195,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_change_password: {
+        Args: {
+          p_current_password: string
+          p_new_password: string
+          p_username: string
+        }
+        Returns: boolean
+      }
+      admin_exists: { Args: never; Returns: boolean }
+      admin_login: {
+        Args: { p_password: string; p_username: string }
+        Returns: boolean
+      }
+      admin_register: {
+        Args: { p_password: string; p_username: string }
+        Returns: boolean
+      }
       cast_vote: {
         Args: {
           p_member_id: string

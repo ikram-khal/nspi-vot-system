@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import { useI18n } from '@/lib/i18n';
 
 export default function AdminDashboard() {
+  const { t } = useI18n();
   const [stats, setStats] = useState({ members: 0, meetings: 0, activeVotes: 0 });
 
   useEffect(() => {
@@ -18,14 +20,14 @@ export default function AdminDashboard() {
   }, []);
 
   const cards = [
-    { label: 'Ағзалар', value: stats.members, icon: '👥' },
-    { label: 'Мәжилислер', value: stats.meetings, icon: '📋' },
-    { label: 'Актив даўыслар', value: stats.activeVotes, icon: '🗳️' },
+    { label: t('members'), value: stats.members, icon: '👥' },
+    { label: t('meetings'), value: stats.meetings, icon: '📋' },
+    { label: t('active_votes'), value: stats.activeVotes, icon: '🗳️' },
   ];
 
   return (
     <div className="animate-fade-in-up">
-      <h2 className="text-xl font-bold mb-6">Басқарыў панели</h2>
+      <h2 className="text-xl font-bold mb-6">{t('control_panel')}</h2>
       <div className="grid gap-4 md:grid-cols-3">
         {cards.map(c => (
           <Card key={c.label}>
