@@ -40,14 +40,16 @@ export default function MembersPage() {
   useEffect(() => { load(); }, []);
 
   const addMember = async () => {
-    if (!name.trim() || !pin.trim()) return;
-    const { error } = await supabase.from('members').insert({ name: name.trim(), pin: pin.trim() });
+    if (!name.trim()) return;
+    const existingPins = new Set(members.map(m => m.pin));
+    const pin = generatePin(name.trim(), existingPins);
+    const { error } = await supabase.from('members').insert({ name: name.trim(), pin });
     if (error) {
       toast.error(error.message.includes('duplicate') ? t('duplicate_pin') : error.message);
       return;
     }
-    toast.success(t('member_added'));
-    setName(''); setPin('');
+    toast.success(t('member_added') + ' — PIN: ' + pin);
+    setName('');
     load();
   };
 
