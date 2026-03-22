@@ -14,13 +14,174 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      meeting_attendees: {
+        Row: {
+          id: string
+          meeting_id: string
+          member_id: string
+        }
+        Insert: {
+          id?: string
+          meeting_id: string
+          member_id: string
+        }
+        Update: {
+          id?: string
+          meeting_id?: string
+          member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_attendees_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_attendees_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meetings: {
+        Row: {
+          created_at: string
+          id: string
+          meeting_date: string
+          protocol_number: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meeting_date: string
+          protocol_number: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meeting_date?: string
+          protocol_number?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      members: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          pin: string
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          pin: string
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          pin?: string
+          session_id?: string | null
+        }
+        Relationships: []
+      }
+      question_votes: {
+        Row: {
+          id: string
+          member_id: string
+          question_id: string
+        }
+        Insert: {
+          id?: string
+          member_id: string
+          question_id: string
+        }
+        Update: {
+          id?: string
+          member_id?: string
+          question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_votes_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questions: {
+        Row: {
+          created_at: string
+          id: string
+          meeting_id: string
+          status: string
+          text: string
+          votes_abstain: number
+          votes_against: number
+          votes_for: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meeting_id: string
+          status?: string
+          text: string
+          votes_abstain?: number
+          votes_against?: number
+          votes_for?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meeting_id?: string
+          status?: string
+          text?: string
+          votes_abstain?: number
+          votes_against?: number
+          votes_for?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cast_vote: {
+        Args: {
+          p_member_id: string
+          p_question_id: string
+          p_vote_type: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
