@@ -14,9 +14,22 @@ export default function MembersPage() {
   const { t } = useI18n();
   const [members, setMembers] = useState<Member[]>([]);
   const [name, setName] = useState('');
-  const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const generatePin = (fullName: string, existingPins: Set<string>): string => {
+    const parts = fullName.trim().split(/\s+/);
+    const initials = parts.map(p => p[0]?.toUpperCase() || '').join('');
+    const prefix = initials || 'X';
+    let pin = '';
+    let attempts = 0;
+    do {
+      const num = String(Math.floor(1000 + Math.random() * 9000));
+      pin = prefix + num;
+      attempts++;
+    } while (existingPins.has(pin) && attempts < 100);
+    return pin;
+  };
 
   const load = async () => {
     const { data } = await supabase.from('members').select('*').order('name');
