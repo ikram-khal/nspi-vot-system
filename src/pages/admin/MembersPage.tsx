@@ -5,16 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { parseXlsx, downloadTemplate } from '@/lib/xlsx-utils';
+import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
 
-interface Member {
-  id: string;
-  name: string;
-  pin: string;
-  session_id: string | null;
-}
+interface Member { id: string; name: string; pin: string; session_id: string | null; }
 
 export default function MembersPage() {
+  const { t } = useI18n();
   const [members, setMembers] = useState<Member[]>([]);
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
@@ -33,18 +30,18 @@ export default function MembersPage() {
     if (!name.trim() || !pin.trim()) return;
     const { error } = await supabase.from('members').insert({ name: name.trim(), pin: pin.trim() });
     if (error) {
-      toast.error(error.message.includes('duplicate') ? 'Бул PIN аллақашан бар' : error.message);
+      toast.error(error.message.includes('duplicate') ? t('duplicate_pin') : error.message);
       return;
     }
-    toast.success('Ағза қосылды');
+    toast.success(t('member_added'));
     setName(''); setPin('');
     load();
   };
 
   const deleteMember = async (id: string, memberName: string) => {
-    if (!confirm(`"${memberName}" ағзасын өширесиз бе?`)) return;
+    if (!confirm(`"${memberName}" — ${t('delete_member_confirm')}`)) return;
     await supabase.from('members').delete().eq('id', id);
-    toast.success('Өширилди');
+    toast.success(t('deleted'));
     load();
   };
 
@@ -56,16 +53,14 @@ export default function MembersPage() {
       const existingPins = new Set(members.map(m => m.pin));
       const toAdd = parsed.filter(p => !existingPins.has(p.pin));
       const skipped = parsed.length - toAdd.length;
-
       if (toAdd.length > 0) {
         const { error } = await supabase.from('members').insert(toAdd);
         if (error) throw error;
       }
-
-      toast.success(`Қосылды: ${toAdd.length}, Өткизилди (дубликат PIN): ${skipped}`);
+      toast.success(t('import_result', { added: toAdd.length, skipped }));
       load();
     } catch (err: any) {
-      toast.error(err.message || 'Импорт қәтеси');
+      toast.error(err.message || t('import_error'));
     }
     if (fileRef.current) fileRef.current.value = '';
   };
@@ -73,25 +68,21 @@ export default function MembersPage() {
   return (
     <div className="space-y-6 animate-fade-in-up">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Ағзалар</h2>
+        <h2 className="text-xl font-bold">{t('members')}</h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={downloadTemplate}>📥 Шаблон</Button>
-          <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-            📤 XLSX импорт
-          </Button>
+          <Button variant="outline" size="sm" onClick={downloadTemplate}>📥 {t('download_template')}</Button>
+          <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>📤 {t('upload_xlsx')}</Button>
           <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFileImport} />
         </div>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Жаңа ағза қосыў</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle className="text-base">{t('add_member')}</CardTitle></CardHeader>
         <CardContent>
           <div className="flex gap-2">
-            <Input placeholder="Аты-жөни" value={name} onChange={e => setName(e.target.value)} className="flex-1" />
+            <Input placeholder={t('full_name')} value={name} onChange={e => setName(e.target.value)} className="flex-1" />
             <Input placeholder="PIN" value={pin} onChange={e => setPin(e.target.value)} className="w-28" />
-            <Button onClick={addMember}>Қосыў</Button>
+            <Button onClick={addMember}>{t('add')}</Button>
           </div>
         </CardContent>
       </Card>
@@ -99,17 +90,17 @@ export default function MembersPage() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-8 text-center text-muted-foreground">Жүкленбекте...</div>
+            <div className="p-8 text-center text-muted-foreground">{t('loading')}</div>
           ) : members.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">Ағзалар жоқ</div>
+            <div className="p-8 text-center text-muted-foreground">{t('no_members')}</div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12">#</TableHead>
-                  <TableHead>Аты-жөни</TableHead>
+                  <TableHead>{t('full_name')}</TableHead>
                   <TableHead className="w-24">PIN</TableHead>
-                  <TableHead className="w-24">Статус</TableHead>
+                  <TableHead className="w-24">{t('status')}</TableHead>
                   <TableHead className="w-20" />
                 </TableRow>
               </TableHeader>
@@ -121,9 +112,7 @@ export default function MembersPage() {
                     <TableCell className="font-mono">{m.pin}</TableCell>
                     <TableCell>{m.session_id ? '✅' : '⏳'}</TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm" className="text-destructive" onClick={() => deleteMember(m.id, m.name)}>
-                        🗑️
-                      </Button>
+                      <Button variant="ghost" size="sm" className="text-destructive" onClick={() => deleteMember(m.id, m.name)}>🗑️</Button>
                     </TableCell>
                   </TableRow>
                 ))}
