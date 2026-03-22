@@ -14,9 +14,22 @@ export default function MembersPage() {
   const { t } = useI18n();
   const [members, setMembers] = useState<Member[]>([]);
   const [name, setName] = useState('');
-  const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const generatePin = (fullName: string, existingPins: Set<string>): string => {
+    const parts = fullName.trim().split(/\s+/);
+    const initials = parts.map(p => p[0]?.toUpperCase() || '').join('');
+    const prefix = initials || 'X';
+    let pin = '';
+    let attempts = 0;
+    do {
+      const num = String(Math.floor(1000 + Math.random() * 9000));
+      pin = prefix + num;
+      attempts++;
+    } while (existingPins.has(pin) && attempts < 100);
+    return pin;
+  };
 
   const load = async () => {
     const { data } = await supabase.from('members').select('*').order('name');
@@ -27,14 +40,16 @@ export default function MembersPage() {
   useEffect(() => { load(); }, []);
 
   const addMember = async () => {
-    if (!name.trim() || !pin.trim()) return;
-    const { error } = await supabase.from('members').insert({ name: name.trim(), pin: pin.trim() });
+    if (!name.trim()) return;
+    const existingPins = new Set(members.map(m => m.pin));
+    const pin = generatePin(name.trim(), existingPins);
+    const { error } = await supabase.from('members').insert({ name: name.trim(), pin });
     if (error) {
       toast.error(error.message.includes('duplicate') ? t('duplicate_pin') : error.message);
       return;
     }
-    toast.success(t('member_added'));
-    setName(''); setPin('');
+    toast.success(t('member_added') + ' — PIN: ' + pin);
+    setName('');
     load();
   };
 
@@ -49,9 +64,10 @@ export default function MembersPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const parsed = await parseXlsx(file);
       const existingPins = new Set(members.map(m => m.pin));
-      const toAdd = parsed.filter(p => !existingPins.has(p.pin));
+      const existingNames = new Set(members.map(m => m.name.toLowerCase()));
+      const parsed = await parseXlsx(file, existingPins);
+      const toAdd = parsed.filter(p => !existingNames.has(p.name.toLowerCase()));
       const skipped = parsed.length - toAdd.length;
       if (toAdd.length > 0) {
         const { error } = await supabase.from('members').insert(toAdd);
@@ -80,10 +96,10 @@ export default function MembersPage() {
         <CardHeader><CardTitle className="text-base">{t('add_member')}</CardTitle></CardHeader>
         <CardContent>
           <div className="flex gap-2">
-            <Input placeholder={t('full_name')} value={name} onChange={e => setName(e.target.value)} className="flex-1" />
-            <Input placeholder="PIN" value={pin} onChange={e => setPin(e.target.value)} className="w-28" />
+            <Input placeholder={t('full_name')} value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && addMember()} className="flex-1" />
             <Button onClick={addMember}>{t('add')}</Button>
           </div>
+          <p className="text-xs text-muted-foreground mt-2">PIN код автоматик жаратылады (мыс. BAQ1234)</p>
         </CardContent>
       </Card>
 
