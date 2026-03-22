@@ -69,6 +69,7 @@ const translations = {
   question_added: { qq: 'Мәселе қосылды', ru: 'Вопрос добавлен' },
   meeting_created: { qq: 'Мәжилис жаратылды', ru: 'Заседание создано' },
   member_added: { qq: 'Ағза қосылды', ru: 'Участник добавлен' },
+  pin_generated: { qq: 'PIN код жаратылды: {pin}', ru: 'Сгенерирован PIN код: {pin}' },
   deleted: { qq: 'Өширилди', ru: 'Удалено' },
   voting_started: { qq: 'Даўыс бериў басланды!', ru: 'Голосование началось!' },
   voting_stopped: { qq: 'Даўыс бериў тоқтатылды', ru: 'Голосование остановлено' },

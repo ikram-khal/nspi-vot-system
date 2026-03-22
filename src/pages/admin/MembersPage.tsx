@@ -95,10 +95,10 @@ export default function MembersPage() {
         <CardHeader><CardTitle className="text-base">{t('add_member')}</CardTitle></CardHeader>
         <CardContent>
           <div className="flex gap-2">
-            <Input placeholder={t('full_name')} value={name} onChange={e => setName(e.target.value)} className="flex-1" />
-            <Input placeholder="PIN" value={pin} onChange={e => setPin(e.target.value)} className="w-28" />
+            <Input placeholder={t('full_name')} value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && addMember()} className="flex-1" />
             <Button onClick={addMember}>{t('add')}</Button>
           </div>
+          <p className="text-xs text-muted-foreground mt-2">PIN код автоматик жаратылады (мыс. BAQ1234)</p>
         </CardContent>
       </Card>
 
