@@ -64,9 +64,10 @@ export default function MembersPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const parsed = await parseXlsx(file);
       const existingPins = new Set(members.map(m => m.pin));
-      const toAdd = parsed.filter(p => !existingPins.has(p.pin));
+      const existingNames = new Set(members.map(m => m.name.toLowerCase()));
+      const parsed = await parseXlsx(file, existingPins);
+      const toAdd = parsed.filter(p => !existingNames.has(p.name.toLowerCase()));
       const skipped = parsed.length - toAdd.length;
       if (toAdd.length > 0) {
         const { error } = await supabase.from('members').insert(toAdd);
